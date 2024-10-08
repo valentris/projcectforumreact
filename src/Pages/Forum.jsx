@@ -61,48 +61,49 @@ const Forum = () => {
   }, [navigate]);
 
   const handleAddPost = () => {
-  const userData = JSON.parse(localStorage.getItem('userData')); // Ambil userData dari localStorage
-  if (!userData || !userData.userId) {
-    Swal.fire('Error', 'User tidak ditemukan. Silakan login lagi.', 'error');
-    return;
-  }
+    const userData = JSON.parse(localStorage.getItem('userData')); 
+    if (!userData || !userData.userId) {
+      Swal.fire('Error', 'User tidak ditemukan. Silakan login lagi.', 'error');
+      return;
+    }
 
-  if (newPost.title.trim() && newPost.body.trim()) {
-    const postData = {
-      ...newPost,
-      userId: userData.userId, // Tambahkan userId ke dalam post
-      created_by: userData.nama, // Tambahkan nama pembuat post
-      create_at: moment().format('YYYY-MM-DD HH:mm:ss'), // Tambahkan waktu pembuatan
-    };
+    if (newPost.title.trim() && newPost.body.trim()) {
+      const postData = {
+        ...newPost,
+        userId: userData.userId, 
+        created_by: userData.nama, 
+        create_at: moment().format('YYYY-MM-DD HH:mm:ss'), 
+      };
 
-    axios.post('https://fcollection.my.id/landing2/home/add_post', postData)
-      .then(response => {
-        if (response.data.status === 'success') {
-          const newTopic = {
-            id: topics.length + 1,
-            ...postData,
-            comments: []
-          };
-          setTopics([newTopic, ...topics]);
-          Swal.fire('Success', response.data.message, 'success');
-          setShowAddPostModal(false);
-          setNewPost({ title: '', body: '' }); // Reset form setelah berhasil menambah post
-        } else {
-          Swal.fire('Error', response.data.message, 'error');
-        }
-      })
-      .catch(error => {
-        Swal.fire('Error', 'Failed to add post', 'error');
-      });
-  } else {
-    Swal.fire('Error', 'Title and body are required', 'error');
-  }
-};
+      axios.post('https://fcollection.my.id/landing2/home/add_post', postData)
+        .then(response => {
+          if (response.data.status === 'success') {
+            const newTopic = {
+              id: topics.length + 1,
+              ...postData,
+              comments: []
+            };
+            setTopics([newTopic, ...topics]);
+            Swal.fire('Success', response.data.message, 'success');
+            setShowAddPostModal(false);
+            setNewPost({ title: '', body: '' }); 
+          } else {
+            Swal.fire('Error', response.data.message, 'error');
+          }
+        })
+        .catch(error => {
+          Swal.fire('Error', 'Failed to add post', 'error');
+        });
+    } else {
+      Swal.fire('Error', 'Title and body are required', 'error');
+    }
+  };
 
   const handleViewTopic = (topic) => {
     setSelectedTopic(topic);
     setComments(topic.comments || []);
     setNewComment('');
+    setCurrentCommentPage(1); // Reset ke halaman pertama saat topik dipilih
   };
 
   const handleDeletePost = (topicId) => {
@@ -148,7 +149,7 @@ const Forum = () => {
               topic.id === editPostId ? { ...topic, title: newPost.title, body: newPost.body } : topic
             ));
             setShowEditPostModal(false);
-            setNewPost({ title: '', body: '' }); // Reset form setelah berhasil mengedit post
+            setNewPost({ title: '', body: '' }); 
             Swal.fire('Success', 'Post berhasil diupdate.', 'success');
           } else {
             Swal.fire('Error', response.data.message, 'error');
@@ -187,6 +188,7 @@ const Forum = () => {
               )
             );
             setNewComment('');
+            setCurrentCommentPage(1); // Reset pagination ke halaman pertama setelah komentar ditambahkan
             Swal.fire('Success', 'Komentar berhasil ditambahkan', 'success');
           } else {
             Swal.fire('Error', response.data.message, 'error');
@@ -243,7 +245,7 @@ const Forum = () => {
       </div>
 
       {/* Topic cards layout */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-8"> {/* Tambahkan pb-8 untuk padding bawah */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-8"> 
         {currentTopics.map(topic => (
           <div key={topic.id} className="bg-white rounded-lg shadow-lg p-6">
             <h5 className="text-lg font-semibold mb-2">{topic.title}</h5>
@@ -268,90 +270,93 @@ const Forum = () => {
         ))}
       </div>
 
-        {showAddPostModal && (
-          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-              <h3 className="text-xl font-semibold mb-4">Tambah Post Baru</h3>
-              <div className="mb-4">
-                <label className="block text-gray-700 font-bold mb-2" htmlFor="title">Title</label>
-                <input
-                  type="text"
-                  id="title"
-                  className="border rounded w-full py-2 px-3"
-                  value={newPost.title}
-                  onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 font-bold mb-2" htmlFor="body">Body</label>
-                <textarea
-                  id="body"
-                  className="border rounded w-full py-2 px-3"
-                  rows="5"
-                  value={newPost.body}
-                  onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
-                />
-              </div>
-              <div className="flex justify-end">
-                <button
-                  className="bg-gray-500 text-white px-4 py-2 rounded mr-2"
-                  onClick={() => setShowAddPostModal(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="bg-green-500 text-white px-4 py-2 rounded"
-                  onClick={handleAddPost}
-                >
-                  Add Post
-                </button>
-              </div>
+      {/* Add Post Modal */}
+      {showAddPostModal && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+            <h3 className="text-xl font-semibold mb-4">Tambah Post Baru</h3>
+            <div className="mb-4">
+              <label className="block text-gray-700 font-bold mb-2" htmlFor="title">Title</label>
+              <input
+                type="text"
+                id="title"
+                className="border rounded w-full py-2 px-3"
+                value={newPost.title}
+                onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 font-bold mb-2" htmlFor="body">Body</label>
+              <textarea
+                id="body"
+                className="border rounded w-full py-2 px-3"
+                rows="5"
+                value={newPost.body}
+                onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
+              />
+            </div>
+            <div className="flex justify-end">
+              <button
+                className="bg-gray-500 text-white px-4 py-2 rounded mr-2"
+                onClick={() => setShowAddPostModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-green-500 text-white px-4 py-2 rounded"
+                onClick={handleAddPost}
+              >
+                Add Post
+              </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {showEditPostModal && (
-          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-              <h3 className="text-xl font-semibold mb-4">Edit Post</h3>
-              <div className="mb-4">
-                <label className="block text-gray-700 font-bold mb-2" htmlFor="title">Title</label>
-                <input
-                  type="text"
-                  id="title"
-                  className="border rounded w-full py-2 px-3"
-                  value={newPost.title}
-                  onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 font-bold mb-2" htmlFor="body">Body</label>
-                <textarea
-                  id="body"
-                  className="border rounded w-full py-2 px-3"
-                  rows="5"
-                  value={newPost.body}
-                  onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
-                />
-              </div>
-              <div className="flex justify-end">
-                <button
-                  className="bg-gray-500 text-white px-4 py-2 rounded mr-2"
-                  onClick={() => setShowEditPostModal(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="bg-green-500 text-white px-4 py-2 rounded"
-                  onClick={handleSaveEditPost}
-                >
-                  Save Changes
-                </button>
-              </div>
+      {/* Edit Post Modal */}
+      {showEditPostModal && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+            <h3 className="text-xl font-semibold mb-4">Edit Post</h3>
+            <div className="mb-4">
+              <label className="block text-gray-700 font-bold mb-2" htmlFor="title">Title</label>
+              <input
+                type="text"
+                id="title"
+                className="border rounded w-full py-2 px-3"
+                value={newPost.title}
+                onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 font-bold mb-2" htmlFor="body">Body</label>
+              <textarea
+                id="body"
+                className="border rounded w-full py-2 px-3"
+                rows="5"
+                value={newPost.body}
+                onChange={(e) => setNewPost({ ...newPost, body: e.target.value })}
+              />
+            </div>
+            <div className="flex justify-end">
+              <button
+                className="bg-gray-500 text-white px-4 py-2 rounded mr-2"
+                onClick={() => setShowEditPostModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-green-500 text-white px-4 py-2 rounded"
+                onClick={handleSaveEditPost}
+              >
+                Save Changes
+              </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
+      {/* Topic and Comments Section */}
       {selectedTopic && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg relative">
