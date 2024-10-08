@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  .input-label {
+    @apply text-white block pb-1;
+  }
+
+  .input {
+    @apply border border-white w-full rounded-full py-2 outline-none px-4 focus:ring-2 focus:border-transparent focus:ring-white/80 bg-transparent text-white;
+  }
+  
+}
+
+@layer components {
+  .primary-btn {
+    @apply inline-block bg-primary text-white font-semibold rounded-lg;
+    @apply duration-200; /* Transisi untuk durasi */
+    outline: 2px solid white; /* Tambahkan outline untuk visibilitas */
+    box-shadow: 0px 10px 8px -7px #ffd697; /* Custom shadow */
+    padding: 0.5rem 1rem; /* Pastikan ada padding */
+    position: relative; /* Pastikan posisi relative untuk z-index */
+    transition: background-color 0.2s, box-shadow 0.2s, color 0.2s; /* Transisi untuk animasi */
+    z-index: 1; /* Pastikan teks ada di atas elemen lain */
+  }
+
+  .primary-btn:hover {
+    background-color: rgba(
+      105,
+      167,
+      156,
+      0.8
+    ); /* Transparansi pada background */
+    box-shadow: 0px 10px 8px -7px rgba(105, 167, 156, 0.8); /* Transparansi pada shadow */
+    padding: 0.5rem 1rem; /* Pastikan padding tetap ada */
+    color: white; /* Warna teks tetap kontras */
+    z-index: 2; /* Pastikan z-index lebih tinggi saat hover */
+  }
+}
+
+@layer utilities {
+  .drop-shadow {
+    filter: drop-shadow(6px 8px 10px rgba(0, 0, 0, 0.5));
+  }
+}
